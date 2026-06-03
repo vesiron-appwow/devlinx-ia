@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0f1e">
+<meta name="description" content="DevLinx - AppWow Developer Access Portal">
+<title>DevLinx | AppWow Development</title>
+<style>
+  :root {
+    --bg-deep:      #0a0f1e;
+    --bg-card:      #111827;
+    --bg-surface:   #1a2236;
+    --teal:         #00c4b4;
+    --teal-dim:     #009e91;
+    --orange:       #f97316;
+    --text:         #e8edf5;
+    --text-dim:     #6b7a94;
+    --border:       #1f2d45;
+    --border-light: #2a3a56;
+    --success:      #22c55e;
+    --warning:      #eab308;
+    --error:        #ef4444;
+    --radius:       10px;
+    --radius-lg:    16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg-deep); color: var(--text); font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* HEADER */
+  header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .header-brand { display: flex; align-items: center; gap: 10px; }
+  .header-logo { width: 32px; height: 32px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px; color: var(--bg-deep); flex-shrink: 0; }
+  .header-sub  { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.2px; line-height: 1; }
+  .header-name { font-size: 17px; font-weight: 900; color: var(--text); letter-spacing: -0.3px; line-height: 1.2; }
+  .header-name span { color: var(--teal); }
+  .header-badge { font-size: 10px; font-weight: 700; color: var(--orange); border: 1px solid var(--orange); border-radius: 4px; padding: 2px 6px; }
+
+  /* MAIN */
+  main { flex: 1; padding: 24px 16px 48px; max-width: 480px; width: 100%; margin: 0 auto; }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+  /* HEADINGS */
+  .screen-heading { margin-bottom: 22px; }
+  .screen-heading h2 { font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: -0.4px; margin-bottom: 4px; }
+  .screen-heading p  { font-size: 13px; color: var(--text-dim); }
+  .step-indicator { display: flex; gap: 6px; margin-bottom: 10px; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-light); }
+  .step-dot.active { background: var(--teal); }
+  .step-dot.done   { background: var(--teal-dim); }
+
+  /* CARDS */
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 18px; margin-bottom: 14px; }
+  .card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--teal); margin-bottom: 14px; }
+
+  /* VERIFICATION QUESTION DISPLAY */
+  .question-display { background: var(--bg-surface); border: 1px solid var(--border-light); border-left: 3px solid var(--teal); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; }
+  .question-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 3px; }
+  .question-text  { font-size: 15px; font-weight: 600; color: var(--text); }
+
+  /* FORM */
+  .field-group { margin-bottom: 14px; }
+  .field-group:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); margin-bottom: 5px; }
+  input[type="text"], input[type="email"], input[type="password"], select, textarea {
+    width: 100%; background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius); color: var(--text); font-family: inherit; font-size: 15px; padding: 11px 13px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; appearance: none; -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,196,180,0.1); }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a99b3' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 34px; cursor: pointer; }
+  textarea { resize: vertical; min-height: 78px; }
+  .field-note { font-size: 11px; color: var(--text-dim); margin-top: 5px; }
+
+  /* READONLY FIELD */
+  .field-readonly { background: var(--bg-deep); border: 1px solid var(--border); border-radius: var(--radius); padding: 11px 13px; font-size: 15px; color: var(--text-dim); display: flex; align-items: center; justify-content: space-between; }
+  .field-readonly-lock { font-size: 11px; color: var(--border-light); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* BUTTONS */
+  .btn { display: block; width: 100%; padding: 13px 18px; border: none; border-radius: var(--radius); font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary   { background: var(--teal); color: var(--bg-deep); }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary { background: var(--bg-surface); color: var(--text); border: 1px solid var(--border-light); }
+  .btn-secondary:hover { border-color: var(--teal); }
+  .btn-sm { width: auto; display: inline-block; padding: 7px 14px; font-size: 13px; }
+  .btn-back { background: none; border: none; color: var(--text-dim); font-family: inherit; font-size: 13px; cursor: pointer; padding: 0; margin-bottom: 18px; display: flex; align-items: center; gap: 5px; }
+  .btn-back:hover { color: var(--text); }
+
+  /* NOTICES */
+  .notice { padding: 11px 13px; border-radius: var(--radius); font-size: 13px; display: flex; align-items: flex-start; gap: 9px; margin-bottom: 14px; }
+  .notice-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+  .notice-error   { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.25);  color: #fca5a5; display: none; }
+  .notice-info    { background: rgba(0,196,180,0.08); border: 1px solid rgba(0,196,180,0.2);   color: var(--teal); }
+  .notice-success { background: rgba(34,197,94,0.1);  border: 1px solid rgba(34,197,94,0.25);  color: #86efac; display: none; }
+  .notice-warning { background: rgba(234,179,8,0.1);  border: 1px solid rgba(234,179,8,0.25);  color: #fde68a; }
+
+  /* DIVIDER */
+  .divider { display: flex; align-items: center; gap: 10px; margin: 18px 0; color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* APP LIST */
+  .apps-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .apps-meta-email { font-size: 12px; color: var(--text-dim); }
+  .apps-meta-email span { color: var(--teal); font-weight: 600; }
+  .apps-count { font-size: 11px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; color: var(--text-dim); }
+  .app-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 16px 12px; margin-bottom: 10px; }
+  .app-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+  .app-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .app-date { font-size: 11px; color: var(--text-dim); }
+  .status-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+  .status-approved { background: rgba(34,197,94,0.12);   color: var(--success); border: 1px solid rgba(34,197,94,0.25); }
+  .status-pending  { background: rgba(234,179,8,0.15);   color: var(--warning); border: 1px solid rgba(234,179,8,0.3); }
+  .status-review   { background: rgba(0,196,180,0.12);   color: var(--teal);    border: 1px solid rgba(0,196,180,0.25); }
+  .status-rejected { background: rgba(239,68,68,0.12);   color: var(--error);   border: 1px solid rgba(239,68,68,0.25); }
+  .status-hidden   { background: rgba(138,153,179,0.12); color: #8a99b3;        border: 1px solid rgba(138,153,179,0.25); }
+  .app-card-actions { display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 2px; }
+  .unpublish-confirm { display: none; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius); padding: 11px 13px; margin-top: 10px; }
+  .unpublish-confirm.open { display: block; }
+  .unpublish-confirm p { font-size: 12px; color: #fca5a5; margin-bottom: 10px; }
+  .unpublish-confirm-actions { display: flex; gap: 8px; }
+
+  /* REVIEW TAG */
+  .review-tag { font-size: 10px; color: var(--warning); border: 1px solid rgba(234,179,8,0.3); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
+
+  /* LOADING BAR */
+  #loading-bar { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: linear-gradient(90deg, var(--teal), var(--orange)); z-index: 999; transition: width 0.4s ease, opacity 0.3s; opacity: 0; }
+  #loading-bar.running { opacity: 1; }
+
+  /* FOOTER */
+  footer { text-align: center; padding: 14px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-dim); }
+  footer span { color: var(--teal); }
+</style>
+</head>
+<body>
+
+<div id="loading-bar"></div>
+
+<header>
+  <div class="header-brand">
+    <div class="header-logo">DL</div>
+    <div>
+      <div class="header-sub">AppWow Development</div>
+      <div class="header-name">Dev<span>Linx</span></div>
+    </div>
+  </div>
+  <div class="header-badge">ALPHA</div>
+</header>
+
+<main>
+
+  <!-- SCREEN 1: EMAIL -->
+  <div class="screen active" id="screen-1">
+    <div class="screen-heading">
+      <div class="step-indicator">
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+      </div>
+      <h2>Developer Access</h2>
+      <p>Enter your registered email address to continue.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Identity Check</div>
+      <div class="field-group">
+        <label for="input-email">Email Address</label>
+        <input type="email" id="input-email" placeholder="you@example.com" autocomplete="email" inputmode="email">
+      </div>
+      <div id="error-s1" class="notice notice-error">
+        <span class="notice-icon">&#9888;</span>
+        <span id="error-s1-msg">No developer profile found for that email address.</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="handleEmailSubmit()">Continue &#8594;</button>
+    <div class="divider">New to AppWow?</div>
+    <a class="btn btn-secondary" href="https://appwow.app/submit" target="_blank" rel="noopener" style="text-decoration:none;text-align:center;">Submit an Application &#8599;</a>
+  </div>
+
+  <!-- SCREEN 2: VERIFICATION ANSWER -->
+  <div class="screen" id="screen-2">
+    <button class="btn-back" onclick="showScreen('screen-1')">&#8592; Back</button>
+    <div class="screen-heading">
+      <div class="step-indicator">
+        <div class="step-dot done"></div>
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+      </div>
+      <h2>Security Check</h2>
+      <p>Answer your Verification Question to access your apps.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Verification Question</div>
+      <div class="question-display">
+        <div class="question-label">Your Question</div>
+        <div class="question-text" id="display-question"></div>
+      </div>
+      <div class="field-group">
+        <label for="input-answer">Verification Answer</label>
+        <input type="password" id="input-answer" placeholder="Enter your answer" autocomplete="off">
+      </div>
+      <div id="error-s2" class="notice notice-error">
+        <span class="notice-icon">&#9888;</span>
+        <span>Incorrect answer. Please try again.</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="handleAnswerSubmit()">Access My Apps &#8594;</button>
+  </div>
+
+  <!-- SCREEN 3: MY APPS -->
+  <div class="screen" id="screen-3">
+    <div class="screen-heading">
+      <div class="step-indicator">
+        <div class="step-dot done"></div>
+        <div class="step-dot done"></div>
+        <div class="step-dot active"></div>
+      </div>
+      <h2>My Applications</h2>
+    </div>
+    <div class="apps-meta">
+      <div class="apps-meta-email">Signed in as <span id="display-email"></span></div>
+      <div class="apps-count" id="apps-count-badge">0 apps</div>
+    </div>
+    <div id="notice-success" class="notice notice-success">
+      <span class="notice-icon">&#10003;</span>
+      <span id="notice-success-msg">Changes saved.</span>
+    </div>
+    <div id="app-list-container"></div>
+    <div class="divider">Actions</div>
+    <a class="btn btn-secondary" href="https://appwow.app/submit" target="_blank" rel="noopener" style="text-decoration:none;text-align:center;">+ Submit Another App &#8599;</a>
+    <div style="height:10px;"></div>
+    <button class="btn btn-secondary" style="color:var(--text-dim);font-size:13px;" onclick="signOut()">Sign Out</button>
+  </div>
+
+  <!-- SCREEN 4: EDIT APP -->
+  <div class="screen" id="screen-edit">
+    <button class="btn-back" onclick="showScreen('screen-3')">&#8592; Back to My Apps</button>
+    <div class="screen-heading">
+      <h2>Edit Application</h2>
+      <p id="edit-app-name-label" style="color:var(--text-dim);font-size:13px;"></p>
+    </div>
+    <div class="notice notice-warning" style="display:flex;">
+      <span class="notice-icon">&#9432;</span>
+      <span>App name is locked after approval. Changes to assets will be submitted for re-review before going live.</span>
+    </div>
+    <div class="card">
+      <div class="card-title">App Details</div>
+      <div class="field-group">
+        <label>App Name <span class="review-tag">Locked</span></label>
+        <div class="field-readonly">
+          <span id="edit-name-display"></span>
+          <span class="field-readonly-lock">Admin only</span>
+        </div>
+        <div class="field-note">To request a name change, contact AppWow support.</div>
+      </div>
+      <div class="field-group">
+        <label for="edit-url">Website URL</label>
+        <input type="text" id="edit-url" placeholder="https://myapp.example.com">
+      </div>
+      <div class="field-group">
+        <label for="edit-desc">Short Description</label>
+        <textarea id="edit-desc" rows="3" placeholder="What does your app do?"></textarea>
+      </div>
+      <div class="field-group">
+        <label for="edit-category">Category</label>
+        <select id="edit-category">
+          <option value="">Select a category...</option>
+          <option>Productivity</option>
+          <option>Lifestyle</option>
+          <option>Business</option>
+          <option>Sport &amp; Fitness</option>
+          <option>Finance</option>
+          <option>Games</option>
+          <option>Tools &amp; Utilities</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Assets <span class="review-tag">Triggers Re-review</span></div>
+      <div class="field-group">
+        <label for="edit-icon">App Icon URL</label>
+        <input type="text" id="edit-icon" placeholder="https://.../icon-512.png">
+      </div>
+      <div class="field-group">
+        <label for="edit-screenshot">Screenshot URL</label>
+        <input type="text" id="edit-screenshot" placeholder="https://.../screenshot.png">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveEdit()" style="margin-bottom:10px;">Save Changes</button>
+    <button class="btn btn-secondary" onclick="showScreen('screen-3')">Cancel</button>
+  </div>
+
+</main>
+
+<footer>
+  <span>AppWow</span> &nbsp;&middot;&nbsp; DevLinx Alpha &nbsp;&middot;&nbsp; Vesiron Tech Ltd
+</footer>
+
+<script>
+// ── STATE ──
+let currentEmail = '';
+let currentAppId = null;
+
+// ── API ENDPOINTS ──
+// Replace with your live Worker URLs before deployment
+const API = {
+  lookup: '/api/devlinx/lookup',    // POST { email } → { verification_question }
+  verify: '/api/devlinx/verify',    // POST { email, answer_hash } → { token, apps[] }
+  apps:   '/api/devlinx/apps',      // GET  (auth header) → { apps[] }
+  update: '/api/devlinx/update',    // POST (auth header) { app_id, fields }
+  unpublish: '/api/devlinx/unpublish' // POST (auth header) { app_id }
+};
+
+let sessionToken = '';
+
+// ── SCREEN MANAGEMENT ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function runLoadingBar(cb) {
+  const bar = document.getElementById('loading-bar');
+  bar.style.width = '0%'; bar.classList.add('running');
+  setTimeout(() => { bar.style.width = '70%'; }, 30);
+  setTimeout(() => { bar.style.width = '100%'; }, 380);
+  setTimeout(() => { bar.classList.remove('running'); bar.style.width = '0%'; if (cb) cb(); }, 660);
+}
+
+// ── SCREEN 1: EMAIL SUBMIT ──
+async function handleEmailSubmit() {
+  const email  = document.getElementById('input-email').value.trim().toLowerCase();
+  const errBox = document.getElementById('error-s1');
+  errBox.style.display = 'none';
+
+  if (!email || !email.includes('@')) {
+    document.getElementById('error-s1-msg').textContent = 'Please enter a valid email address.';
+    errBox.style.display = 'flex'; return;
+  }
+
+  runLoadingBar(async () => {
+    try {
+      const res  = await fetch(API.lookup, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+      const data = await res.json();
+      if (!res.ok || !data.verification_question) {
+        document.getElementById('error-s1-msg').textContent = data.error || 'No developer profile found for that email address.';
+        errBox.style.display = 'flex'; return;
+      }
+      currentEmail = email;
+      document.getElementById('display-question').textContent = data.verification_question;
+      document.getElementById('input-answer').value = '';
+      document.getElementById('error-s2').style.display = 'none';
+      showScreen('screen-2');
+    } catch {
+      document.getElementById('error-s1-msg').textContent = 'Unable to connect. Please try again.';
+      errBox.style.display = 'flex';
+    }
+  });
+}
+
+// ── SCREEN 2: VERIFICATION ANSWER ──
+async function handleAnswerSubmit() {
+  const answer = document.getElementById('input-answer').value.trim().toLowerCase();
+  const errBox = document.getElementById('error-s2');
+  errBox.style.display = 'none';
+  if (!answer) { errBox.style.display = 'flex'; return; }
+
+  runLoadingBar(async () => {
+    try {
+      const res  = await fetch(API.verify, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: currentEmail, answer }) });
+      const data = await res.json();
+      if (!res.ok || !data.token) {
+        errBox.style.display = 'flex'; return;
+      }
+      sessionToken = data.token;
+      document.getElementById('display-email').textContent = currentEmail;
+      document.getElementById('notice-success').style.display = 'none';
+      renderAppList(data.apps || []);
+      showScreen('screen-3');
+    } catch {
+      errBox.style.display = 'flex';
+    }
+  });
+}
+
+// ── SCREEN 3: APP LIST ──
+const STATUS_LABELS  = { approved:'Approved', pending:'Pending Review', review:'In Review', rejected:'Rejected', hidden:'Unpublished' };
+const STATUS_CLASSES = { approved:'status-approved', pending:'status-pending', review:'status-review', rejected:'status-rejected', hidden:'status-hidden' };
+
+function renderAppList(apps) {
+  const container = document.getElementById('app-list-container');
+  const badge     = document.getElementById('apps-count-badge');
+  badge.textContent = apps.length + ' app' + (apps.length !== 1 ? 's' : '');
+
+  if (apps.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:44px 16px;border:2px dashed var(--border);border-radius:var(--radius-lg);"><div style="font-size:36px;margin-bottom:10px;opacity:0.4;">&#128230;</div><p style="color:var(--text-dim);">No applications found.</p></div>';
+    return;
+  }
+
+  container.innerHTML = apps.map(app => `
+    <div class="app-card" id="card-${app.id}">
+      <div class="app-card-header">
+        <div>
+          <div class="app-name">${esc(app.name)}</div>
+          <div class="app-date">Submitted ${fmtDate(app.date)}</div>
+        </div>
+        <span class="status-badge ${STATUS_CLASSES[app.status] || 'status-pending'}">${STATUS_LABELS[app.status] || app.status}</span>
+      </div>
+      <div class="app-card-actions">
+        <button class="btn btn-primary btn-sm" onclick="openEdit('${app.id}')">Edit</button>
+        ${app.status !== 'hidden'
+          ? `<button class="btn btn-secondary btn-sm" style="color:#ef4444;border-color:rgba(239,68,68,0.3);" onclick="toggleUnpublish('u-${app.id}')">Unpublish</button>`
+          : `<button class="btn btn-secondary btn-sm" onclick="republish('${app.id}')">Republish</button>`
+        }
+      </div>
+      <div class="unpublish-confirm" id="u-${app.id}">
+        <p>This will hide your app from AppWow listings immediately. You can republish at any time.</p>
+        <div class="unpublish-confirm-actions">
+          <button class="btn btn-secondary btn-sm" onclick="toggleUnpublish('u-${app.id}')">Cancel</button>
+          <button class="btn btn-sm" style="background:transparent;border:1px solid rgba(239,68,68,0.4);color:#ef4444;" onclick="confirmUnpublish('${app.id}')">Yes, Unpublish</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleUnpublish(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+async function confirmUnpublish(appId) {
+  try {
+    const res = await fetch(API.unpublish, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sessionToken }, body: JSON.stringify({ app_id: appId }) });
+    if (res.ok) {
+      showSuccess('App unpublished. It is no longer visible on AppWow.');
+      await refreshApps();
+    }
+  } catch { showSuccess('Could not complete request. Please try again.'); }
+}
+
+async function republish(appId) {
+  try {
+    const res = await fetch(API.update, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sessionToken }, body: JSON.stringify({ app_id: appId, status: 'pending' }) });
+    if (res.ok) {
+      showSuccess('Republish request submitted. Your app will be reviewed shortly.');
+      await refreshApps();
+    }
+  } catch { showSuccess('Could not complete request. Please try again.'); }
+}
+
+async function refreshApps() {
+  try {
+    const res  = await fetch(API.apps, { headers: { 'Authorization': 'Bearer ' + sessionToken } });
+    const data = await res.json();
+    renderAppList(data.apps || []);
+  } catch {}
+}
+
+// ── SCREEN 4: EDIT ──
+let editApps = [];
+
+function openEdit(appId) {
+  // Retrieve app data from rendered state via data stored in app list
+  // In production the Worker returns app detail; here we re-fetch or use cached data
+  currentAppId = appId;
+  const nameEl = document.querySelector(`#card-${appId} .app-name`);
+  const name   = nameEl ? nameEl.textContent : '';
+  document.getElementById('edit-app-name-label').textContent = 'Editing: ' + name;
+  document.getElementById('edit-name-display').textContent   = name;
+  // Clear fields — Worker will pre-populate via API in production
+  document.getElementById('edit-url').value        = '';
+  document.getElementById('edit-desc').value       = '';
+  document.getElementById('edit-category').value   = '';
+  document.getElementById('edit-icon').value       = '';
+  document.getElementById('edit-screenshot').value = '';
+  showScreen('screen-edit');
+}
+
+async function saveEdit() {
+  const payload = {
+    app_id:     currentAppId,
+    url:        document.getElementById('edit-url').value.trim(),
+    desc:       document.getElementById('edit-desc').value.trim(),
+    category:   document.getElementById('edit-category').value,
+    icon:       document.getElementById('edit-icon').value.trim(),
+    screenshot: document.getElementById('edit-screenshot').value.trim()
+    // app_name intentionally excluded — locked field, admin-only
+    // edit_token handled server-side — never exposed to UI
+  };
+  try {
+    const res = await fetch(API.update, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sessionToken }, body: JSON.stringify(payload) });
+    if (res.ok) {
+      showSuccess('Changes saved. Asset updates will be reviewed before going live.');
+      await refreshApps();
+      showScreen('screen-3');
+    }
+  } catch { showSuccess('Could not save. Please try again.'); }
+}
+
+// ── HELPERS ──
+function showSuccess(msg) {
+  const el = document.getElementById('notice-success');
+  document.getElementById('notice-success-msg').textContent = msg;
+  el.style.display = 'flex';
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+function signOut() {
+  currentEmail = '';
+  currentAppId = '';
+  sessionToken = '';
+  document.getElementById('input-email').value  = '';
+  document.getElementById('input-answer').value = '';
+  showScreen('screen-1');
+}
+
+function fmtDate(d) {
+  if (!d) return '-';
+  const [y,m,day] = d.split('-');
+  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return parseInt(day) + ' ' + mo[parseInt(m)-1] + ' ' + y;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── KEYBOARD ──
+document.getElementById('input-email').addEventListener('keydown',  e => { if (e.key === 'Enter') handleEmailSubmit(); });
+document.getElementById('input-answer').addEventListener('keydown', e => { if (e.key === 'Enter') handleAnswerSubmit(); });
+</script>
+</body>
+</html>
