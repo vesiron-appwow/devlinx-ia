@@ -310,6 +310,7 @@ const API = {
   lookup: API_BASE + '/api/devlinx/lookup',
   verify: API_BASE + '/api/devlinx/verify',
   apps: API_BASE + '/api/devlinx/apps',
+  app: API_BASE + '/api/devlinx/app',
   update: API_BASE + '/api/devlinx/update',
   unpublish: API_BASE + '/api/devlinx/unpublish'
 };
@@ -462,21 +463,59 @@ async function refreshApps() {
 // ── SCREEN 4: EDIT ──
 let editApps = [];
 
-function openEdit(appId) {
-  // Retrieve app data from rendered state via data stored in app list
-  // In production the Worker returns app detail; here we re-fetch or use cached data
+async function openEdit(appId) {
+
   currentAppId = appId;
-  const nameEl = document.querySelector(`#card-${appId} .app-name`);
-  const name   = nameEl ? nameEl.textContent : '';
-  document.getElementById('edit-app-name-label').textContent = 'Editing: ' + name;
-  document.getElementById('edit-name-display').textContent   = name;
-  // Clear fields — Worker will pre-populate via API in production
-  document.getElementById('edit-url').value        = '';
-  document.getElementById('edit-desc').value       = '';
-  document.getElementById('edit-category').value   = '';
-  document.getElementById('edit-icon').value       = '';
-  document.getElementById('edit-screenshot').value = '';
-  showScreen('screen-edit');
+
+  try {
+
+    const res = await fetch(
+      API.app,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          app_id: appId
+        })
+      }
+    );
+
+    const app = await res.json();
+
+    if (!res.ok) {
+      return;
+    }
+
+    document.getElementById('edit-app-name-label')
+      .textContent = 'Editing: ' + app.app_name;
+
+    document.getElementById('edit-name-display')
+      .textContent = app.app_name || '';
+
+    document.getElementById('edit-url')
+      .value = app.app_url || '';
+
+    document.getElementById('edit-desc')
+      .value = app.description || '';
+
+    document.getElementById('edit-category')
+      .value = app.category || '';
+
+    document.getElementById('edit-icon')
+      .value = app.icon_url || '';
+
+    document.getElementById('edit-screenshot')
+      .value = app.screenshot_url || '';
+
+    showScreen('screen-edit');
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
 }
 
 async function saveEdit() {
