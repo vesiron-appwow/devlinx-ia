@@ -304,15 +304,15 @@ let currentEmail = '';
 let currentAppId = null;
 
 // ── API ENDPOINTS ──
-// Replace with your live Worker URLs before deployment
-const API = {
-  lookup: '/api/devlinx/lookup',    // POST { email } → { verification_question }
-  verify: '/api/devlinx/verify',    // POST { email, answer_hash } → { token, apps[] }
-  apps:   '/api/devlinx/apps',      // GET  (auth header) → { apps[] }
-  update: '/api/devlinx/update',    // POST (auth header) { app_id, fields }
-  unpublish: '/api/devlinx/unpublish' // POST (auth header) { app_id }
-};
+const API_BASE = 'https://vtl-platform-api.mja-226.workers.dev';
 
+const API = {
+  lookup: API_BASE + '/api/devlinx/lookup',
+  verify: API_BASE + '/api/devlinx/verify',
+  apps: API_BASE + '/api/devlinx/apps',
+  update: API_BASE + '/api/devlinx/update',
+  unpublish: API_BASE + '/api/devlinx/unpublish'
+};
 let sessionToken = '';
 
 // ── SCREEN MANAGEMENT ──
