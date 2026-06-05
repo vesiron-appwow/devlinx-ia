@@ -453,7 +453,13 @@ async function confirmUnpublish(appId) {
 
 async function republish(appId) {
   try {
-    const res = await fetch(API.update, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sessionToken }, body: JSON.stringify({ app_id: appId, status: 'pending' }) });
+    const res = await fetch(API.update, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(payload)
+});
     if (res.ok) {
       showSuccess('Republish request submitted. Your app will be reviewed shortly.');
       await refreshApps();
