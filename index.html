@@ -468,11 +468,29 @@ async function republish(appId) {
 }
 
 async function refreshApps() {
+
   try {
-    const res  = await fetch(API.apps, { headers: { 'Authorization': 'Bearer ' + sessionToken } });
+
+    const res = await fetch(API.apps, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: currentEmail
+      })
+    });
+
     const data = await res.json();
+
     renderAppList(data.apps || []);
-  } catch {}
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+
 }
 
 // ── SCREEN 4: EDIT ──
